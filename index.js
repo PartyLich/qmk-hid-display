@@ -142,21 +142,20 @@ function getWeather() {
         const url = `https://www.yahoo.com/news/weather/united-states/st-augustine/st-augustine-12771497`;
         request(url, (err, res, body) => {
             const weather = {};
+          try {
             const temp = tempRegex.exec(body);
-            if (temp && temp.length > 1) {
-                weather.temp = JSON.parse(temp[1]);
-            }
+            weather.temp = JSON.parse(temp[1]);
 
             const cond = condRegex.exec(body);
-            if (cond && cond.length > 1) {
-                weather.desc = cond[1];
-            }
+            weather.desc = cond[1];
 
             const rain = rainRegex.exec(body);
-            if (rain && rain.length > 1) {
-                weather.rain = rain[1];
-            }
+            weather.rain = rain[1];
+
             resolve(weather);
+          } catch(err) {
+            reject(err);
+          }
         });
     });
 }
@@ -168,9 +167,9 @@ async function startWeatherMonitor() {
 
     // Just keep updating the data forever
     while (true) {
+      try {
         // Get the current weather for Seattle
         const weather = await getWeather();
-        if (weather && weather.temp && weather.desc && weather.rain) {
             let description = weather.desc;
 
             // If we are trying to show the same weather description more than once, and it is longer than 9
@@ -197,7 +196,9 @@ async function startWeatherMonitor() {
 
             // Set this to be the latest weather info
             screens[SCREEN_WEATHER] = screen;
-        }
+      } catch (e) {
+        // do nothing
+      }
 
         // Pause a bit before requesting more info
         await wait(KEYBOARD_UPDATE_TIME);
