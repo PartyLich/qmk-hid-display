@@ -131,35 +131,37 @@ async function startStockMonitor() {
     }
 }
 
-async function startWeatherMonitor() {
+// Get the current weather conditions from yahoo news
+function getWeather() {
     // Regex's for reading out the weather info from the yahoo page
     const tempRegex = /"temperature":({[^}]+})/;
     const condRegex = /"conditionDescription":"([^"]+)"/;
     const rainRegex = /"precipitationProbability":([^,]+),/;
 
-    function getWeather() {
-        return new Promise((resolve) => {
-            request(`https://www.yahoo.com/news/weather/united-states/st-augustine/st-augustine-12771497`, (err, res, body) => {
-                const weather = {};
-                const temp = tempRegex.exec(body);
-                if (temp && temp.length > 1) {
-                    weather.temp = JSON.parse(temp[1]);
-                }
+    return new Promise((resolve) => {
+        const url = `https://www.yahoo.com/news/weather/united-states/st-augustine/st-augustine-12771497`;
+        request(url, (err, res, body) => {
+            const weather = {};
+            const temp = tempRegex.exec(body);
+            if (temp && temp.length > 1) {
+                weather.temp = JSON.parse(temp[1]);
+            }
 
-                const cond = condRegex.exec(body);
-                if (cond && cond.length > 1) {
-                    weather.desc = cond[1];
-                }
+            const cond = condRegex.exec(body);
+            if (cond && cond.length > 1) {
+                weather.desc = cond[1];
+            }
 
-                const rain = rainRegex.exec(body);
-                if (rain && rain.length > 1) {
-                    weather.rain = rain[1];
-                }
-                resolve(weather);
-            });
+            const rain = rainRegex.exec(body);
+            if (rain && rain.length > 1) {
+                weather.rain = rain[1];
+            }
+            resolve(weather);
         });
-    }
+    });
+}
 
+async function startWeatherMonitor() {
     // Used for scrolling long weather descriptions
     let lastWeather = null;
     let lastWeatherDescIndex = 0;
