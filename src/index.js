@@ -7,6 +7,7 @@ const request = require("request");
 
 const { wait } = require("./util");
 const perfStream = require("./perfMonitor").stream;
+const stockStream = require("./stockMonitor").stream;
 
 
 // Keyboard info
@@ -24,63 +25,6 @@ let currentScreenIndex = 0;
 let keyboard = null;
 let screenBuffer = null;
 let screenLastUpdate = null;
-
-async function startStockMonitor() {
-    // Set the stocks that we want to show
-    const stocks = new Map();
-    let counter = 0;
-    stocks.set("MSFT", 0);
-    stocks.set("TSLA", 0);
-    stocks.set("GOOG", 0);
-    stocks.set("FB", 0);
-
-    // The regex used to grab the price from the yahoo stocks page
-    const priceRegex = /"currentPrice":({[^}]+})/;
-
-    function getStocks() {
-        const promises = [];
-        for (const key of stocks.keys()) {
-            promises.push(new Promise((resolve) => {
-                // Get the stock price page for the current stock
-                request(`https://finance.yahoo.com/quote/${ key }/`, (err, res, body) => {
-                    // Parse out the price and update the map
-                    const result = priceRegex.exec(body);
-                    if (result && result.length > 1) {
-                        let price = JSON.parse(result[1]).raw;
-                        price = price.toFixed(2);
-                        stocks.set(key, price);
-                    }
-                    resolve();
-                });
-            }));
-        }
-
-        // Wait for all the stocks to be updated
-        return Promise.all(promises);
-    }
-
-    // Just keep updating the data forever
-    while (true) {
-        // Get the current stock prices
-        if (counter % 10 === 0) {
-            await getStocks();
-        }
-        counter++;
-
-        // Create a screen using the stock data
-        const lines = [];
-        for (const [key, value] of stocks) {
-            const line = `${ key.padEnd(5) }: $${ value }`;
-            lines.push(`${ line }${ " ".repeat(16 - line.length) }|  ${ title(lines.length, 1) } `);
-        }
-
-        // Set this to be the latest stock info
-        screens[SCREEN_STOCK] = lines.join("");
-
-        // Pause a bit before requesting more info
-        await wait(KEYBOARD_UPDATE_TIME);
-    }
-}
 
 async function startWeatherMonitor() {
     // Regex's for reading out the weather info from the yahoo page
