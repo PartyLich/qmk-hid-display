@@ -16,15 +16,17 @@ const KEYBOARD_USAGE_ID = 0x61;
 const KEYBOARD_USAGE_PAGE = 0xFF60;
 const KEYBOARD_UPDATE_TIME = 1000;
 
+const STOCK_SYMBOLS = [
+    "MSFT",
+    "TSLA",
+    "GOOG",
+    "FB",
+];
+
 // Info screen types
 const monitors = [
     perfStream(),
-    stockStream([
-        "MSFT",
-        "TSLA",
-        "GOOG",
-        "FB",
-    ]),
+    stockStream(STOCK_SYMBOLS),
     weatherStream(),
 ];
 let screens = new Array(monitors.length);
