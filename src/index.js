@@ -17,9 +17,17 @@ const KEYBOARD_USAGE_PAGE = 0xFF60;
 const KEYBOARD_UPDATE_TIME = 1000;
 
 // Info screen types
-const SCREEN_STOCK = 1;
-const SCREEN_WEATHER = 2;
-const screens = ["", "", ""];
+const monitors = [
+    perfStream(),
+    stockStream([
+        "MSFT",
+        "TSLA",
+        "GOOG",
+        "FB",
+    ]),
+    weatherStream(),
+];
+let screens = new Array(monitors.length);
 let currentScreenIndex = 0;
 
 let keyboard = null;
@@ -106,10 +114,20 @@ function updateKeyboardScreen() {
     }
 }
 
-// Start the monitors that collect the info to display
-startPerfMonitor();
-startStockMonitor();
-startWeatherMonitor();
+/**
+ * Update screens buffer with the latest data from each monitor
+ */
+async function updateScreens() {
+    screens = (await Promise.all(monitors.map((stream) => stream.next())))
+            .map((screen) => screen.value);
+}
+
+/**
+ * Update monitor data and send the current screen to the keyboard
+ */
+function run() {
+    updateScreens.then(() => updateKeyboardScreen());
+}
 
 // Update the data on the keyboard with the current info screen every second
-setInterval(updateKeyboardScreen, KEYBOARD_UPDATE_TIME);
+setInterval(run, KEYBOARD_UPDATE_TIME);
