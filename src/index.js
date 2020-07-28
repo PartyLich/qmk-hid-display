@@ -4,19 +4,9 @@
 const hid = require("node-hid");
 const os = require("os-utils");
 const request = require("request");
-const batteryLevel = require("battery-level");
-const loudness = require("loudness");
-
-// the node-audio-windows version is much faster on windows, but loudness handles other os's better,
-// so let's get the best of both worlds
-let winAudio;
-try {
-    winAudio = require("node-audio-windows").volume;
-} catch (err) {
-    // do nothing
-}
 
 const { wait } = require("./util");
+const perfStream = require("./perfMonitor").stream;
 
 
 // Keyboard info
@@ -26,7 +16,6 @@ const KEYBOARD_USAGE_PAGE = 0xFF60;
 const KEYBOARD_UPDATE_TIME = 1000;
 
 // Info screen types
-const SCREEN_PERF = 0;
 const SCREEN_STOCK = 1;
 const SCREEN_WEATHER = 2;
 const screens = ["", "", ""];
@@ -35,40 +24,6 @@ let currentScreenIndex = 0;
 let keyboard = null;
 let screenBuffer = null;
 let screenLastUpdate = null;
-
-async function startPerfMonitor() {
-    while (true) {
-        const [
-            cpuUsagePercent,
-            usedMemoryPercent,
-            volumeLevelPercent,
-            batteryPercent,
-        ] = await Promise.all([
-            new Promise((resolve) => os.cpuUsage((usage) => resolve(usage * 100))),
-            100 - (os.freememPercentage() * 100),
-            (os.platform() === "darwin" ? loudness.getVolume() : winAudio.getVolume() * 100),
-            (await batteryLevel()) * 100,
-        ]);
-
-        const screen = [
-            ["CPU:", cpuUsagePercent],
-            ["RAM:", usedMemoryPercent],
-            ["VOL:", volumeLevelPercent],
-            ["BAT:", batteryPercent],
-        ];
-
-        const maxTitleSize = Math.max(...screen.map(([header]) => header.length));
-        const barGraphSize = 21 - maxTitleSize - 3;
-
-        // Set this to be the latest performance info
-        screens[SCREEN_PERF] = screen.map(([header, percent], index) => {
-            const numBlackTiles = barGraphSize * (percent / 100);
-            return `${ header } ${ "\u0008".repeat(Math.ceil(numBlackTiles)) }${ " ".repeat(barGraphSize - numBlackTiles) }|${ title(index, 0) }`;
-        }).join("");
-
-        await wait(KEYBOARD_UPDATE_TIME);
-    }
-}
 
 async function startStockMonitor() {
     // Set the stocks that we want to show
