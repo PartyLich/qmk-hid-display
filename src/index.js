@@ -16,6 +16,8 @@ try {
     // do nothing
 }
 
+const { wait } = require("./util");
+
 
 // Keyboard info
 const KEYBOARD_NAME = "Lily58";
@@ -33,13 +35,6 @@ let currentScreenIndex = 0;
 let keyboard = null;
 let screenBuffer = null;
 let screenLastUpdate = null;
-
-// Helper function to wait a few milliseconds using a promise
-function wait(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-}
 
 async function startPerfMonitor() {
     while (true) {
