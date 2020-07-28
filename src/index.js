@@ -34,6 +34,10 @@ let keyboard = null;
 let screenBuffer = null;
 let screenLastUpdate = null;
 
+/**
+ * Send screen data to the keyboard
+ * @param {string} screen
+ */
 async function sendToKeyboard(screen) {
     // If we are already buffering a screen to the keyboard just quit early.
     // Or if there is no update from what we sent last time.
@@ -75,6 +79,9 @@ async function sendToKeyboard(screen) {
     screenBuffer = null;
 }
 
+/**
+ * Update the keyboard display
+ */
 function updateKeyboardScreen() {
     // If we don't have a connection to a keyboard yet, look now
     if (!keyboard) {
