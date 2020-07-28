@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "lint": "eslint ./index.js && echo Lint Complete",
-    "lint:fix": "eslint ./index.js --fix && echo Lint Complete"
+    "lint": "eslint src/*.js && echo Lint Complete",
+    "lint:fix": "eslint src/*.js --fix && echo Lint Complete"
   },
   "author": "James Lissiak",
   "license": "MIT",
