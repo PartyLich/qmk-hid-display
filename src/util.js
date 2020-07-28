@@ -9,6 +9,20 @@ function wait(ms) {
     });
 }
 
+/**
+ * Return the character that indicates the title part from the font data
+ * @param {number} i
+ * @param {number} titleIndex
+ * @return {string}
+ */
+function title(i, titleIndex) {
+    if (i === 3) {
+        return "\u00DE";
+    }
+    return String.fromCharCode((0x9A - titleIndex) + i * 32);
+}
+
 module.exports = {
     wait,
+    title,
 };
