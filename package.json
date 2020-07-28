@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node index.js",
     "lint": "eslint src/*.js && echo Lint Complete",
-    "lint:fix": "eslint src/*.js --fix && echo Lint Complete"
+    "lint:fix": "eslint src/*.js --fix && echo Lint Complete",
+    "test": "tape **/*.test.js | faucet"
   },
   "author": "James Lissiak",
   "license": "MIT",
@@ -30,6 +31,8 @@
   },
   "devDependencies": {
     "eslint": "^7.5.0",
-    "eslint-config-partylich": "^0.1.1"
+    "eslint-config-partylich": "^0.1.1",
+    "faucet": "0.0.1",
+    "tape": "^5.0.1"
   }
 }
